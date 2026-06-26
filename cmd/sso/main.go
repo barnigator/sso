@@ -3,6 +3,7 @@ package main
 import (
 	"log/slog"
 	"os"
+	"sso/internal/app"
 	"sso/internal/config"
 	slogpretty "sso/internal/lib/logger/handlers/slogprety"
 )
@@ -19,6 +20,10 @@ func main() {
 	log := setupLogger(cfg.Env)
 
 	log.Info("starting application", slog.Any("cfg", cfg))
+
+	appllication := app.New(log, cfg.GRPC.Port, cfg.StoragePath, cfg.TokenTTL)
+
+	appllication.GRPCServer.MustRun()
 }
 
 // go run cmd/sso/main.go --config=./config/local.yaml
