@@ -3,9 +3,11 @@ package main
 import (
 	"log/slog"
 	"os"
+	"os/signal"
 	"sso/internal/app"
 	"sso/internal/config"
 	slogpretty "sso/internal/lib/logger/handlers/slogprety"
+	"syscall"
 )
 
 const (
@@ -23,7 +25,20 @@ func main() {
 
 	appllication := app.New(log, cfg.GRPC.Port, cfg.StoragePath, cfg.TokenTTL)
 
-	appllication.GRPCServer.MustRun()
+	// обернуть соединение с БД в приложение
+	go func() {
+		appllication.GRPCServer.MustRun()
+	}()
+
+	stop := make(chan os.Signal, 1)
+	signal.Notify(stop, syscall.SIGINT, syscall.SIGTERM)
+	stopSign := <-stop
+
+	log.Info("stopping application", slog.Any("signal", stopSign))
+
+	appllication.GRPCServer.Stop()
+
+	log.Info("application stopped")
 }
 
 // go run cmd/sso/main.go --config=./config/local.yaml
