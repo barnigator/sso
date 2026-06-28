@@ -23,11 +23,11 @@ func main() {
 
 	log.Info("starting application", slog.Any("cfg", cfg))
 
-	appllication := app.New(log, cfg.GRPC.Port, cfg.StoragePath, cfg.TokenTTL)
+	application := app.New(log, cfg.GRPC.Port, cfg.StoragePath, cfg.TokenTTL)
 
 	// обернуть соединение с БД в приложение
 	go func() {
-		appllication.GRPCServer.MustRun()
+		application.GRPCServer.MustRun()
 	}()
 
 	stop := make(chan os.Signal, 1)
@@ -36,9 +36,9 @@ func main() {
 
 	log.Info("stopping application", slog.Any("signal", stopSign))
 
-	appllication.GRPCServer.Stop()
+	application.GRPCServer.Stop()
 
-	log.Info("application stopped")
+	log.Info("application stopped gracefully")
 }
 
 // go run cmd/sso/main.go --config=./config/local.yaml
