@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"flag"
 	"fmt"
 
@@ -34,7 +35,7 @@ func main() {
 	}
 
 	if err := m.Up(); err != nil {
-		if err != migrate.ErrNoChange {
+		if !errors.Is(err, migrate.ErrNoChange) {
 			fmt.Println("no migrations to apply")
 
 			return

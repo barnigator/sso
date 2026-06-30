@@ -3,8 +3,8 @@ package app
 import (
 	"log/slog"
 	grpcapp "sso/internal/app/grpc"
-	"sso/internal/services/auth"
-	"sso/internal/storage/sqlite"
+	"sso/internal/infrastructure/storage/sqlite"
+	"sso/internal/usecase/auth"
 	"time"
 )
 

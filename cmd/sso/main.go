@@ -6,7 +6,7 @@ import (
 	"os/signal"
 	"sso/internal/app"
 	"sso/internal/config"
-	slogpretty "sso/internal/lib/logger/handlers/slogprety"
+	slogpretty "sso/internal/pkg/logger/handlers/slogprety"
 	"syscall"
 )
 

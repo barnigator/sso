@@ -6,7 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"sso/internal/domain/models"
-	"sso/internal/storage"
+	"sso/internal/infrastructure/storage"
 
 	"github.com/mattn/go-sqlite3"
 )

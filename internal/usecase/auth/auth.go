@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"log/slog"
 	"sso/internal/domain/models"
-	"sso/internal/lib/jwt"
-	"sso/internal/lib/logger/sl"
-	"sso/internal/storage"
+	"sso/internal/infrastructure/storage"
+	"sso/internal/pkg/jwt"
+	"sso/internal/pkg/logger/sl"
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
