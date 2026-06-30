@@ -1,8 +1,9 @@
 package main
 
 import (
-	"os"
+	"context"
 	"os/signal"
+	"time"
 
 	"github.com/barnigator/sso/internal/app"
 
@@ -15,12 +16,15 @@ func main() {
 		panic(err)
 	}
 
-	stop := make(chan os.Signal, 1)
-	signal.Notify(stop, syscall.SIGINT, syscall.SIGTERM)
+	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+	defer stop()
 
-	<-stop
+	<-ctx.Done()
 
-	application.Stop()
+	shutDownCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	application.Stop(shutDownCtx)
 }
 
 // go run cmd/sso/main.go --config=./config/local.yaml

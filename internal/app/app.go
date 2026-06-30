@@ -1,6 +1,7 @@
 package app
 
 import (
+	"context"
 	"log/slog"
 	"os"
 
@@ -65,19 +66,17 @@ func Run() (*App, error) {
 
 }
 
-func (a *App) Stop() {
-	a.Log.Info("stopping application")
+func (a *App) Stop(ctx context.Context) {
+	const fn = "app.Stop"
+	a.Log.With(slog.String("fn", fn)).Info("stopping application")
 
-	a.GRPCServer.Stop()
+	a.GRPCServer.Stop(ctx)
 
-	a.Log.Info("closing db")
 	if err := a.Storage.Close(); err != nil {
 		a.Log.Error("failed to close db", "error", err)
-	} else {
-		a.Log.Info("db closed")
 	}
 
-	a.Log.Info("application stopped gracefully")
+	a.Log.Info("application stopped")
 }
 
 func setupLogger(env string) *slog.Logger {

@@ -34,12 +34,13 @@ func (s *Storage) SaveUser(ctx context.Context, email string, passHash []byte) (
 	if err != nil {
 		return 0, fmt.Errorf("%s: %w", fn, err)
 	}
+	defer stmt.Close()
 
 	res, err := stmt.ExecContext(ctx, email, passHash)
 	if err != nil {
 		var sqliteErr sqlite3.Error
 
-		if errors.As(err, &sqliteErr) && sqliteErr.ExtendedCode == sqlite3.ErrConstraintUnique {
+		if errors.As(err, &sqliteErr) && errors.Is(sqliteErr.ExtendedCode, sqlite3.ErrConstraintUnique) {
 			return 0, fmt.Errorf("%s: %w", fn, deps.ErrUserExists)
 		}
 
@@ -62,6 +63,7 @@ func (s *Storage) User(ctx context.Context, email string) (domain.User, error) {
 	if err != nil {
 		return domain.User{}, fmt.Errorf("%s: %w", fn, err)
 	}
+	defer stmt.Close()
 
 	row := stmt.QueryRowContext(ctx, email)
 
@@ -85,6 +87,7 @@ func (s *Storage) IsAdmin(ctx context.Context, userID int64) (bool, error) {
 	if err != nil {
 		return false, fmt.Errorf("%s: %w", fn, err)
 	}
+	defer stmt.Close()
 
 	row := stmt.QueryRowContext(ctx, userID)
 
@@ -108,6 +111,7 @@ func (s *Storage) App(ctx context.Context, appID int) (domain.App, error) {
 	if err != nil {
 		return domain.App{}, fmt.Errorf("%s: %w", fn, err)
 	}
+	defer stmt.Close()
 
 	row := stmt.QueryRowContext(ctx, appID)
 	var app domain.App

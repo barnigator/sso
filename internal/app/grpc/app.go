@@ -1,6 +1,7 @@
 package grpcapp
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 	"net"
@@ -55,13 +56,24 @@ func (a *App) Run() error {
 	return nil
 }
 
-func (a *App) Stop() {
+func (a *App) Stop(ctx context.Context) {
 	const fn = "grpcapp.Stop"
 
 	a.log.With(slog.String("fn", fn)).
 		Info("stopping gRPC server")
 
-	a.gRPCServer.GracefulStop()
+	stopped := make(chan struct{})
 
-	a.log.Info("gRPC server stopped")
+	go func() {
+		a.gRPCServer.GracefulStop()
+		close(stopped)
+	}()
+
+	select {
+	case <-ctx.Done():
+		a.log.Warn("graceful shutdown timed out, forced stop")
+		a.gRPCServer.Stop()
+	case <-stopped:
+		a.log.Info("gRPC server stopped gracefully")
+	}
 }

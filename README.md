@@ -6,7 +6,7 @@ gRPC-сервис авторизации для онлайн-магазина.
 
 - Go
 - gRPC
-- SQLite / PostgreSQL
+- PostgreSQL
 - JWT
 - bcrypt
 - Clean Architecture
