@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 	"os"
 
@@ -32,10 +33,10 @@ func New(
 	grpcPort int,
 	storagePath string,
 	tokenTTL time.Duration,
-) *App {
+) (*App, error) {
 	storage, err := sqlite.New(storagePath)
 	if err != nil {
-		panic(err)
+		return nil, fmt.Errorf("sqlite.New: %w", err)
 	}
 
 	authService := usecase.New(log, storage, storage, storage, tokenTTL)
@@ -46,7 +47,7 @@ func New(
 		GRPCServer: grpcApp,
 		Storage:    storage,
 		Log:        log,
-	}
+	}, nil
 }
 
 func Run() (*App, error) {
@@ -56,7 +57,10 @@ func Run() (*App, error) {
 
 	log.Info("starting application", slog.Any("cfg", cfg))
 
-	application := New(log, cfg.GRPC.Port, cfg.StoragePath, cfg.TokenTTL)
+	application, err := New(log, cfg.GRPC.Port, cfg.StoragePath, cfg.TokenTTL)
+	if err != nil {
+		return nil, err
+	}
 
 	go func() {
 		application.GRPCServer.MustRun()
