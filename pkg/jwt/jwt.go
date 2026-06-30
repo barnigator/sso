@@ -1,13 +1,13 @@
 package jwt
 
 import (
-	"sso/internal/domain/models"
+	domain2 "sso/internal/auth/domain"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 )
 
-func NewToken(user models.User, app models.App, duration time.Duration) (string, error) {
+func NewToken(user domain2.User, app domain2.App, duration time.Duration) (string, error) {
 	token := jwt.New(jwt.SigningMethodHS256)
 
 	claims := token.Claims.(jwt.MapClaims)

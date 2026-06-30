@@ -5,8 +5,8 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"sso/internal/domain/models"
-	"sso/internal/infrastructure/storage"
+	"sso/internal/auth/deps"
+	domain2 "sso/internal/auth/domain"
 
 	"github.com/mattn/go-sqlite3"
 )
@@ -39,7 +39,7 @@ func (s *Storage) SaveUser(ctx context.Context, email string, passHash []byte) (
 		var sqliteErr sqlite3.Error
 
 		if errors.As(err, &sqliteErr) && sqliteErr.ExtendedCode == sqlite3.ErrConstraintUnique {
-			return 0, fmt.Errorf("%s: %w", fn, storage.ErrUserExists)
+			return 0, fmt.Errorf("%s: %w", fn, deps.ErrUserExists)
 		}
 
 		return 0, fmt.Errorf("%s: %w", fn, err)
@@ -54,24 +54,24 @@ func (s *Storage) SaveUser(ctx context.Context, email string, passHash []byte) (
 	return id, nil
 }
 
-func (s *Storage) User(ctx context.Context, email string) (models.User, error) {
+func (s *Storage) User(ctx context.Context, email string) (domain2.User, error) {
 	const fn = "storage.sqlite.User"
 
 	stmt, err := s.db.Prepare("SELECT id, email, pass_hash FROM users WHERE email = ?")
 	if err != nil {
-		return models.User{}, fmt.Errorf("%s: %w", fn, err)
+		return domain2.User{}, fmt.Errorf("%s: %w", fn, err)
 	}
 
 	row := stmt.QueryRowContext(ctx, email)
 
-	var user models.User
+	var user domain2.User
 	err = row.Scan(&user.ID, &user.Email, &user.PassHash)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return models.User{}, fmt.Errorf("%s: %w", fn, storage.ErrUserNotFound)
+			return domain2.User{}, fmt.Errorf("%s: %w", fn, deps.ErrUserNotFound)
 		}
 
-		return models.User{}, fmt.Errorf("%s: %w", fn, err)
+		return domain2.User{}, fmt.Errorf("%s: %w", fn, err)
 	}
 
 	return user, nil
@@ -91,7 +91,7 @@ func (s *Storage) IsAdmin(ctx context.Context, userID int64) (bool, error) {
 	err = row.Scan(&isAdmin)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return false, fmt.Errorf("%s: %w", fn, storage.ErrUserNotFound)
+			return false, fmt.Errorf("%s: %w", fn, deps.ErrUserNotFound)
 		}
 
 		return false, fmt.Errorf("%s: %w", fn, err)
@@ -100,23 +100,23 @@ func (s *Storage) IsAdmin(ctx context.Context, userID int64) (bool, error) {
 	return isAdmin, nil
 }
 
-func (s *Storage) App(ctx context.Context, appID int) (models.App, error) {
+func (s *Storage) App(ctx context.Context, appID int) (domain2.App, error) {
 	const fn = "storage.sqlite.App"
 
 	stmt, err := s.db.Prepare("SELECT id, name, secret FROM apps WHERE id = ?")
 	if err != nil {
-		return models.App{}, fmt.Errorf("%s: %w", fn, err)
+		return domain2.App{}, fmt.Errorf("%s: %w", fn, err)
 	}
 
 	row := stmt.QueryRowContext(ctx, appID)
-	var app models.App
+	var app domain2.App
 	err = row.Scan(&app.ID, &app.Name, &app.Secret)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return models.App{}, storage.ErrAppNotFound
+			return domain2.App{}, deps.ErrAppNotFound
 		}
 
-		return models.App{}, fmt.Errorf("%s: %w", fn, err)
+		return domain2.App{}, fmt.Errorf("%s: %w", fn, err)
 	}
 
 	return app, nil

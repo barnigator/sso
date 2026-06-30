@@ -5,10 +5,9 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
-	"sso/internal/deps"
-	"sso/internal/infrastructure/storage"
-	"sso/internal/pkg/jwt"
-	"sso/internal/pkg/logger/sl"
+	"sso/internal/auth/deps"
+	"sso/pkg/jwt"
+	"sso/pkg/logger/sl"
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
@@ -21,13 +20,6 @@ type Auth struct {
 	appProvider deps.AppProvider
 	tokenTTl    time.Duration
 }
-
-var (
-	ErrInvalidCredentials = errors.New("invalid credentials")
-	ErrInvalidAppID       = errors.New("invalid app id")
-	ErrUserExists         = errors.New("user already exists")
-	ErrUserNotFound       = errors.New("user not found")
-)
 
 // New returns a new instance of Auth service.
 func New(
@@ -61,8 +53,7 @@ func (a *Auth) Login(ctx context.Context, email, password string, appID int) (st
 
 	user, err := a.usrProvider.User(ctx, email)
 	if err != nil {
-		// схуяли мы импортируем сюда сторедж
-		if errors.Is(err, storage.ErrUserNotFound) {
+		if errors.Is(err, deps.ErrUserNotFound) {
 			a.log.Warn("user not found", sl.Err(err))
 
 			return "", fmt.Errorf("%s: %w", fn, ErrInvalidCredentials)
@@ -116,7 +107,7 @@ func (a *Auth) RegisterNewUser(ctx context.Context, email, password string) (int
 
 	id, err := a.usrSavor.SaveUser(ctx, email, passHash)
 	if err != nil {
-		if errors.Is(err, storage.ErrUserExists) {
+		if errors.Is(err, deps.ErrUserExists) {
 			log.Warn("user already exists", sl.Err(err))
 
 			return 0, fmt.Errorf("%s: %w", fn, ErrUserExists)
@@ -143,7 +134,7 @@ func (a *Auth) IsAdmin(ctx context.Context, userID int64) (bool, error) {
 
 	isAdmin, err := a.usrProvider.IsAdmin(ctx, userID)
 	if err != nil {
-		if errors.Is(err, storage.ErrAppNotFound) {
+		if errors.Is(err, deps.ErrAppNotFound) {
 			log.Warn("user not found", sl.Err(err))
 
 			return false, fmt.Errorf("%s: %w", fn, ErrInvalidAppID)

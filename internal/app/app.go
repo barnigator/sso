@@ -3,13 +3,11 @@ package app
 import (
 	"log/slog"
 	"os"
-	"os/signal"
 	grpcapp "sso/internal/app/grpc"
-	"sso/internal/config"
-	"sso/internal/infrastructure/storage/sqlite"
-	slogpretty "sso/internal/pkg/logger/handlers/slogprety"
-	"sso/internal/usecase/auth"
-	"syscall"
+	"sso/internal/auth/repository/sqlite"
+	"sso/internal/auth/usecase/auth"
+	"sso/internal/infrastructure/config"
+	"sso/pkg/logger/handlers/slogprety"
 	"time"
 )
 
@@ -43,7 +41,7 @@ func New(
 	}
 }
 
-func Run() {
+func Run() (*App, error) {
 	cfg := config.MustLoad()
 
 	log := setupLogger(cfg.Env)
@@ -56,15 +54,8 @@ func Run() {
 		application.GRPCServer.MustRun()
 	}()
 
-	stop := make(chan os.Signal, 1)
-	signal.Notify(stop, syscall.SIGINT, syscall.SIGTERM)
-	stopSign := <-stop
+	return application, nil
 
-	log.Info("stopping application", slog.Any("signal", stopSign))
-
-	application.GRPCServer.Stop()
-
-	log.Info("application stopped gracefully")
 }
 
 func setupLogger(env string) *slog.Logger {

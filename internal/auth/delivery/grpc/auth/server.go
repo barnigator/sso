@@ -3,8 +3,8 @@ package auth
 import (
 	"context"
 	"errors"
-	"sso/internal/deps"
-	"sso/internal/usecase/auth"
+	"sso/internal/auth/deps"
+	"sso/internal/auth/usecase/auth"
 
 	ssov1 "github.com/barnigator/protos/gen/go/sso"
 	"google.golang.org/grpc"

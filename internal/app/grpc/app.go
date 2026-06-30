@@ -4,8 +4,9 @@ import (
 	"fmt"
 	"log/slog"
 	"net"
-	authgrpc "sso/internal/delivery/grpc/auth"
-	"sso/internal/deps"
+	"os"
+	authgrpc "sso/internal/auth/delivery/grpc/auth"
+	"sso/internal/auth/deps"
 
 	"google.golang.org/grpc"
 )
@@ -54,11 +55,13 @@ func (a *App) Run() error {
 	return nil
 }
 
-func (a *App) Stop() {
+func (a *App) Stop(signal os.Signal) {
 	const fn = "grpcapp.Stop"
 
 	a.log.With(slog.String("fn", fn)).
-		Info("stopping gRPC server")
+		Info("stopping gRPC server", slog.Any("signal", signal))
 
 	a.gRPCServer.GracefulStop()
+
+	a.log.Info("application stopped gracefully")
 }

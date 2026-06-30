@@ -2,7 +2,7 @@ package deps
 
 import (
 	"context"
-	"sso/internal/domain/models"
+	domain2 "sso/internal/auth/domain"
 )
 
 type UserSavor interface {
@@ -14,10 +14,10 @@ type UserSavor interface {
 }
 
 type UserProvider interface {
-	User(ctx context.Context, email string) (models.User, error)
+	User(ctx context.Context, email string) (domain2.User, error)
 	IsAdmin(ctx context.Context, userID int64) (bool, error)
 }
 
 type AppProvider interface {
-	App(ctx context.Context, appID int) (models.App, error)
+	App(ctx context.Context, appID int) (domain2.App, error)
 }
