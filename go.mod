@@ -1,4 +1,4 @@
-module sso
+module github.com/barnigator/sso
 
 go 1.26.2
 

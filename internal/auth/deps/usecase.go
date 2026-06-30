@@ -2,10 +2,11 @@ package deps
 
 import (
 	"context"
-	domain2 "sso/internal/auth/domain"
+
+	domain "github.com/barnigator/sso/internal/auth/domain"
 )
 
-type UserSavor interface {
+type UserSaver interface {
 	SaveUser(
 		ctx context.Context,
 		email string,
@@ -14,10 +15,10 @@ type UserSavor interface {
 }
 
 type UserProvider interface {
-	User(ctx context.Context, email string) (domain2.User, error)
+	User(ctx context.Context, email string) (domain.User, error)
 	IsAdmin(ctx context.Context, userID int64) (bool, error)
 }
 
 type AppProvider interface {
-	App(ctx context.Context, appID int) (domain2.App, error)
+	App(ctx context.Context, appID int) (domain.App, error)
 }

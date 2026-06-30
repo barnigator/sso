@@ -4,7 +4,7 @@ import "errors"
 
 var (
 	ErrInvalidCredentials = errors.New("invalid credentials")
-	ErrInvalidAppID       = errors.New("invalid app id")
+	ErrInvalidUserID      = errors.New("invalid user id")
 	ErrUserExists         = errors.New("user already exists")
 	ErrUserNotFound       = errors.New("user not found")
 )

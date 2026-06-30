@@ -3,9 +3,10 @@ package suite
 import (
 	"context"
 	"net"
-	"sso/internal/infrastructure/config"
 	"strconv"
 	"testing"
+
+	"github.com/barnigator/sso/internal/infrastructure/config"
 
 	ssov1 "github.com/barnigator/protos/gen/go/sso"
 	"google.golang.org/grpc"

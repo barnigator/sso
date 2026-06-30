@@ -5,17 +5,18 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
-	"sso/internal/auth/deps"
-	"sso/pkg/jwt"
-	"sso/pkg/logger/sl"
 	"time"
+
+	"github.com/barnigator/sso/internal/auth/deps"
+	"github.com/barnigator/sso/pkg/jwt"
+	"github.com/barnigator/sso/pkg/logger/sl"
 
 	"golang.org/x/crypto/bcrypt"
 )
 
 type Auth struct {
 	log         *slog.Logger
-	usrSavor    deps.UserSavor
+	usrSavor    deps.UserSaver
 	usrProvider deps.UserProvider
 	appProvider deps.AppProvider
 	tokenTTl    time.Duration
@@ -26,7 +27,7 @@ func New(
 	log *slog.Logger,
 	userProvider deps.UserProvider,
 	appProvider deps.AppProvider,
-	userSavor deps.UserSavor,
+	userSavor deps.UserSaver,
 	tokenTTl time.Duration,
 ) *Auth {
 	return &Auth{
@@ -134,10 +135,10 @@ func (a *Auth) IsAdmin(ctx context.Context, userID int64) (bool, error) {
 
 	isAdmin, err := a.usrProvider.IsAdmin(ctx, userID)
 	if err != nil {
-		if errors.Is(err, deps.ErrAppNotFound) {
+		if errors.Is(err, deps.ErrUserNotFound) {
 			log.Warn("user not found", sl.Err(err))
 
-			return false, fmt.Errorf("%s: %w", fn, ErrInvalidAppID)
+			return false, fmt.Errorf("%s: %w", fn, ErrInvalidUserID)
 		}
 		return false, fmt.Errorf("%s: %w", fn, err)
 	}

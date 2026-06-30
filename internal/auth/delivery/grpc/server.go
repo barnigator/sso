@@ -3,8 +3,9 @@ package grpc
 import (
 	"context"
 	"errors"
-	"sso/internal/auth/deps"
-	"sso/internal/auth/usecase"
+
+	"github.com/barnigator/sso/internal/auth/deps"
+	"github.com/barnigator/sso/internal/auth/usecase"
 
 	ssov1 "github.com/barnigator/protos/gen/go/sso"
 	"google.golang.org/grpc"

@@ -3,12 +3,13 @@ package main
 import (
 	"os"
 	"os/signal"
-	"sso/internal/app"
+
+	"github.com/barnigator/sso/internal/app"
+
 	"syscall"
 )
 
 func main() {
-
 	application, err := app.Run()
 	if err != nil {
 		panic(err)
@@ -17,9 +18,9 @@ func main() {
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, syscall.SIGINT, syscall.SIGTERM)
 
-	stopSign := <-stop
+	<-stop
 
-	application.GRPCServer.Stop(stopSign)
+	application.Stop()
 }
 
 // go run cmd/sso/main.go --config=./config/local.yaml

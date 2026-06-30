@@ -3,12 +3,15 @@ package app
 import (
 	"log/slog"
 	"os"
-	grpcapp "sso/internal/app/grpc"
-	"sso/internal/auth/repository/sqlite"
-	"sso/internal/auth/usecase"
-	"sso/internal/infrastructure/config"
-	"sso/pkg/logger/handlers/slogprety"
+
+	grpcapp "github.com/barnigator/sso/internal/app/grpc"
+	"github.com/barnigator/sso/internal/auth/repository/sqlite"
+	slogpretty "github.com/barnigator/sso/pkg/logger/handlers/slogprety"
+
 	"time"
+
+	"github.com/barnigator/sso/internal/auth/usecase"
+	"github.com/barnigator/sso/internal/infrastructure/config"
 )
 
 const (
@@ -19,6 +22,8 @@ const (
 
 type App struct {
 	GRPCServer *grpcapp.App
+	Storage    *sqlite.Storage
+	Log        *slog.Logger
 }
 
 func New(
@@ -38,6 +43,8 @@ func New(
 
 	return &App{
 		GRPCServer: grpcApp,
+		Storage:    storage,
+		Log:        log,
 	}
 }
 
@@ -56,6 +63,21 @@ func Run() (*App, error) {
 
 	return application, nil
 
+}
+
+func (a *App) Stop() {
+	a.Log.Info("stopping application")
+
+	a.GRPCServer.Stop()
+
+	a.Log.Info("closing db")
+	if err := a.Storage.Close(); err != nil {
+		a.Log.Error("failed to close db", "error", err)
+	} else {
+		a.Log.Info("db closed")
+	}
+
+	a.Log.Info("application stopped gracefully")
 }
 
 func setupLogger(env string) *slog.Logger {

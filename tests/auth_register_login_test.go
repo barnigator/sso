@@ -1,9 +1,10 @@
 package tests
 
 import (
-	"sso/tests/suite"
 	"testing"
 	"time"
+
+	"github.com/barnigator/sso/tests/suite"
 
 	ssov1 "github.com/barnigator/protos/gen/go/sso"
 	"github.com/brianvoe/gofakeit/v6"
