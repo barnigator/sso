@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
-	"sso/internal/domain/models"
+	"sso/internal/deps"
 	"sso/internal/infrastructure/storage"
 	"sso/internal/pkg/jwt"
 	"sso/internal/pkg/logger/sl"
@@ -16,27 +16,10 @@ import (
 
 type Auth struct {
 	log         *slog.Logger
-	usrSavor    UserSavor
-	usrProvider UserProvider
-	appProvider AppProvider
+	usrSavor    deps.UserSavor
+	usrProvider deps.UserProvider
+	appProvider deps.AppProvider
 	tokenTTl    time.Duration
-}
-
-type UserSavor interface {
-	SaveUser(
-		ctx context.Context,
-		email string,
-		passHash []byte,
-	) (uid int64, err error)
-}
-
-type UserProvider interface {
-	User(ctx context.Context, email string) (models.User, error)
-	IsAdmin(ctx context.Context, userID int64) (bool, error)
-}
-
-type AppProvider interface {
-	App(ctx context.Context, appID int) (models.App, error)
 }
 
 var (
@@ -49,9 +32,9 @@ var (
 // New returns a new instance of Auth service.
 func New(
 	log *slog.Logger,
-	userProvider UserProvider,
-	appProvider AppProvider,
-	userSavor UserSavor,
+	userProvider deps.UserProvider,
+	appProvider deps.AppProvider,
+	userSavor deps.UserSavor,
 	tokenTTl time.Duration,
 ) *Auth {
 	return &Auth{
