@@ -5,7 +5,7 @@ import (
 	"log/slog"
 	"net"
 	"os"
-	authgrpc "sso/internal/auth/delivery/grpc/auth"
+	authgrpc "sso/internal/auth/delivery/grpc"
 	"sso/internal/auth/deps"
 
 	"google.golang.org/grpc"

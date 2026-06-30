@@ -5,7 +5,7 @@ import (
 	"os"
 	grpcapp "sso/internal/app/grpc"
 	"sso/internal/auth/repository/sqlite"
-	"sso/internal/auth/usecase/auth"
+	"sso/internal/auth/usecase"
 	"sso/internal/infrastructure/config"
 	"sso/pkg/logger/handlers/slogprety"
 	"time"
@@ -32,7 +32,7 @@ func New(
 		panic(err)
 	}
 
-	authService := auth.New(log, storage, storage, storage, tokenTTL)
+	authService := usecase.New(log, storage, storage, storage, tokenTTL)
 
 	grpcApp := grpcapp.New(log, authService, grpcPort)
 
