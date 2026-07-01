@@ -15,10 +15,10 @@ type UserSaver interface {
 }
 
 type UserProvider interface {
-	User(ctx context.Context, email string) (domain.User, error)
+	GetUser(ctx context.Context, email string) (domain.User, error)
 	IsAdmin(ctx context.Context, userID int64) (bool, error)
 }
 
 type AppProvider interface {
-	App(ctx context.Context, appID int) (domain.App, error)
+	GetApp(ctx context.Context, appID int) (domain.App, error)
 }

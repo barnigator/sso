@@ -1,0 +1,34 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: sso-postgres
+    environment:
+      POSTGRES_DB: sso
+      POSTGRES_USER: sso
+      POSTGRES_PASSWORD: sso
+    ports:
+      - "5432:5432"
+    volumes:
+      - sso_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sso -d sso"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  migrator:
+    image: migrate/migrate
+    container_name: sso-migrator
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./migrations:/migrations
+    command:
+      [
+        "-path", "/migrations",
+        "-database", "postgres://sso:sso@postgres:5432/sso?sslmode=disable",
+        "up"
+      ]
+volumes:
+  sso_pg_data:

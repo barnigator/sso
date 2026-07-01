@@ -52,7 +52,7 @@ func (a *Auth) Login(ctx context.Context, email, password string, appID int) (st
 
 	log.Info("attempting to login user")
 
-	user, err := a.usrProvider.User(ctx, email)
+	user, err := a.usrProvider.GetUser(ctx, email)
 	if err != nil {
 		if errors.Is(err, deps.ErrUserNotFound) {
 			a.log.Warn("user not found", sl.Err(err))
@@ -71,7 +71,7 @@ func (a *Auth) Login(ctx context.Context, email, password string, appID int) (st
 		return "", fmt.Errorf("%s: %w", fn, ErrInvalidCredentials)
 	}
 
-	app, err := a.appProvider.App(ctx, appID)
+	app, err := a.appProvider.GetApp(ctx, appID)
 	if err != nil {
 		return "", fmt.Errorf("%s: %w", fn, err)
 	}

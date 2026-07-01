@@ -7,8 +7,7 @@ import (
 	"os"
 
 	grpcapp "github.com/barnigator/sso/internal/app/grpc"
-	"github.com/barnigator/sso/internal/auth/repository/sqlite"
-	slogpretty "github.com/barnigator/sso/pkg/logger/handlers/slogprety"
+	"github.com/barnigator/sso/internal/auth/repository/postgres"
 
 	"time"
 
@@ -24,7 +23,7 @@ const (
 
 type App struct {
 	GRPCServer *grpcapp.App
-	Storage    *sqlite.Storage
+	Storage    *postgres.Storage
 	Log        *slog.Logger
 }
 
@@ -34,7 +33,7 @@ func New(
 	storagePath string,
 	tokenTTL time.Duration,
 ) (*App, error) {
-	storage, err := sqlite.New(storagePath)
+	storage, err := postgres.New(storagePath)
 	if err != nil {
 		return nil, fmt.Errorf("sqlite.New: %w", err)
 	}
@@ -88,7 +87,9 @@ func setupLogger(env string) *slog.Logger {
 
 	switch env {
 	case envLocal:
-		log = setupPrettySlog()
+		log = slog.New(
+			slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}),
+		)
 	case envDev:
 		log = slog.New(
 			slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}),
@@ -99,16 +100,4 @@ func setupLogger(env string) *slog.Logger {
 		)
 	}
 	return log
-}
-
-func setupPrettySlog() *slog.Logger {
-	opts := slogpretty.PrettyHandlerOptions{
-		SlogOpts: &slog.HandlerOptions{
-			Level: slog.LevelDebug,
-		},
-	}
-
-	handler := opts.NewPrettyHandler(os.Stdout)
-
-	return slog.New(handler)
 }
