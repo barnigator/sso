@@ -42,7 +42,7 @@ func (s *Storage) SaveUser(ctx context.Context, email string, passHash []byte) (
 
 	if err != nil {
 		var pgErr *pq.Error
-		if errors.As(err, pgErr) && pgErr.Code == "23505" {
+		if errors.As(err, &pgErr) && pgErr.Code == "23505" {
 			return 0, deps.ErrUserExists
 		}
 
@@ -78,13 +78,10 @@ func (s *Storage) IsAdmin(ctx context.Context, userID int64) (bool, error) {
 	var IsAdmin bool
 	err := s.db.QueryRowContext(
 		ctx,
-		"SELECT user_id FROM admins WHERE id = $1",
+		"SELECT EXISTS(SELECT 1 FROM admins WHERE user_id = $1)",
 		userID,
 	).Scan(&IsAdmin)
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return false, fmt.Errorf("%s: %w", fn, deps.ErrUserNotFound)
-		}
 
 		return false, fmt.Errorf("%s: %w", fn, err)
 	}
@@ -100,7 +97,7 @@ func (s *Storage) GetApp(ctx context.Context, appID int) (domain.App, error) {
 	err := s.db.QueryRowContext(
 		ctx,
 		"SELECT id, name, secret FROM apps WHERE id = $1",
-		appID).Scan(&app)
+		appID).Scan(&app.ID, &app.Name, &app.Secret)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return domain.App{}, deps.ErrAppNotFound

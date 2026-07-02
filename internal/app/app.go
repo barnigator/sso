@@ -35,7 +35,7 @@ func New(
 ) (*App, error) {
 	storage, err := postgres.New(storagePath)
 	if err != nil {
-		return nil, fmt.Errorf("sqlite.New: %w", err)
+		return nil, fmt.Errorf("postgres.New: %w", err)
 	}
 
 	authService := usecase.New(log, storage, storage, storage, tokenTTL)

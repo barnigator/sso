@@ -2,7 +2,6 @@ package suite
 
 import (
 	"context"
-	"database/sql"
 	"net"
 	"strconv"
 	"testing"
@@ -29,20 +28,19 @@ func New(t *testing.T) (context.Context, *Suite) {
 	t.Helper()
 
 	cfg := config.MustLoadByPath("../config/local.yaml")
+
 	ctx, cancelCtx := context.WithTimeout(context.Background(), cfg.GRPC.Timeout)
-
-	prepareDB(t, cfg.StoragePath)
-
 	t.Cleanup(func() {
-		t.Helper()
 		cancelCtx()
 	})
 
 	cc, err := grpc.NewClient(grpcAddress(cfg),
 		grpc.WithTransportCredentials(insecure.NewCredentials()))
-	if err != nil {
-		t.Fatalf("grpc server connection failed: %v", err)
-	}
+	require.NoError(t, err)
+
+	t.Cleanup(func() {
+		_ = cc.Close()
+	})
 
 	return ctx, &Suite{
 		T:          t,
@@ -50,26 +48,6 @@ func New(t *testing.T) (context.Context, *Suite) {
 		AuthClient: ssov1.NewAuthClient(cc),
 	}
 
-}
-
-func prepareDB(t *testing.T, dsn string) {
-	t.Helper()
-
-	db, err := sql.Open("postgres", dsn)
-	require.NoError(t, err)
-	defer db.Close()
-
-	_, err = db.Exec(`
-		TRUNCATE TABLE users, apps, admins
-		RESTART IDENTITY CASCADE;
-	`)
-	require.NoError(t, err)
-
-	_, err = db.Exec(`
-		INSERT INTO apps(id, name, secret)
-		VALUES (1, 'test-app', 'test-secret');
-	`)
-	require.NoError(t, err)
 }
 
 func grpcAddress(cfg *config.Config) string {
