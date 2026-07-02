@@ -54,7 +54,11 @@ func Run() (*App, error) {
 
 	log := setupLogger(cfg.Env)
 
-	log.Info("starting application", slog.Any("cfg", cfg))
+	log.Info("starting application",
+		slog.String("env", cfg.Env),
+		slog.Int("grpc_port", cfg.GRPC.Port),
+		slog.Duration("token_ttl", cfg.TokenTTL),
+	)
 
 	application, err := New(log, cfg.GRPC.Port, cfg.StoragePath, cfg.TokenTTL)
 	if err != nil {

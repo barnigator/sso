@@ -15,7 +15,7 @@ var testApp *app.App
 var testCfg *config.Config
 
 func TestMain(m *testing.M) {
-	testCfg = config.MustLoadByPath("../config/local.yaml")
+	testCfg = config.MustLoadByPath("../config/test.yaml")
 
 	log := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
 		Level: slog.LevelInfo,
