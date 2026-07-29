@@ -3,6 +3,8 @@ github.com/BurntSushi/toml v1.6.0 h1:dRaEfpa2VI55EwlIW72hMRHdWouJeRF7TPYhI+AUQjk
 github.com/BurntSushi/toml v1.6.0/go.mod h1:ukJfTF/6rtPPRCnwkur4qwRxa8vTRFBF0uk2lLoLwho=
 github.com/barnigator/protos v0.0.1 h1:Phu6spRKdPxSSOgjnl3pC1slyMQwCv7b3mY8ymb11AY=
 github.com/barnigator/protos v0.0.1/go.mod h1:kCA2Tv3D+EdJK8VcColkO9tlVDmSw7g940B48yUwYTQ=
+github.com/barnigator/protos v0.0.5 h1:2rQvafUBGqumvtWNdRAtE1X3+tHwZdoY5srav6zRhoI=
+github.com/barnigator/protos v0.0.5/go.mod h1:dEjnte5+ORJ5B5WqTHpX2sBq+2o+cq79REfwDt8cDuQ=
 github.com/brianvoe/gofakeit/v6 v6.28.0 h1:Xib46XXuQfmlLS2EXRuJpqcw8St6qSZz75OUo0tgAW4=
 github.com/brianvoe/gofakeit/v6 v6.28.0/go.mod h1:Xj58BMSnFqcn/fAQeSK+/PLtC5kSb7FJIq4JyGa8vEs=
 github.com/cespare/xxhash/v2 v2.3.0 h1:UL815xU9SqsFlibzuggzjXhog7bL6oX9BbNZnL2UFvs=

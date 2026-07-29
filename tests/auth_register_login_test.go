@@ -6,7 +6,7 @@ import (
 
 	"github.com/barnigator/sso/tests/suite"
 
-	ssov1 "github.com/barnigator/protos/gen/go/sso"
+	ssov1 "github.com/barnigator/protos/gen/go/sso/v1"
 	"github.com/brianvoe/gofakeit/v6"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/stretchr/testify/assert"

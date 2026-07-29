@@ -30,10 +30,10 @@ type App struct {
 func New(
 	log *slog.Logger,
 	grpcPort int,
-	storagePath string,
+	postgresDSN string,
 	tokenTTL time.Duration,
 ) (*App, error) {
-	storage, err := postgres.New(storagePath)
+	storage, err := postgres.New(postgresDSN)
 	if err != nil {
 		return nil, fmt.Errorf("postgres.New: %w", err)
 	}
@@ -60,7 +60,7 @@ func Run() (*App, error) {
 		slog.Duration("token_ttl", cfg.TokenTTL),
 	)
 
-	application, err := New(log, cfg.GRPC.Port, cfg.StoragePath, cfg.TokenTTL)
+	application, err := New(log, cfg.GRPC.Port, cfg.PostgresDSN, cfg.TokenTTL)
 	if err != nil {
 		return nil, err
 	}
@@ -99,6 +99,10 @@ func setupLogger(env string) *slog.Logger {
 			slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}),
 		)
 	case envProd:
+		log = slog.New(
+			slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo}),
+		)
+	default:
 		log = slog.New(
 			slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo}),
 		)

@@ -7,7 +7,7 @@ import (
 	"github.com/barnigator/sso/internal/auth/deps"
 	"github.com/barnigator/sso/internal/auth/usecase"
 
-	ssov1 "github.com/barnigator/protos/gen/go/sso"
+	ssov1 "github.com/barnigator/protos/gen/go/sso/v1"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"

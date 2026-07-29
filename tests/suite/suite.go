@@ -9,7 +9,7 @@ import (
 	"github.com/barnigator/sso/internal/infrastructure/config"
 	"github.com/stretchr/testify/require"
 
-	ssov1 "github.com/barnigator/protos/gen/go/sso"
+	ssov1 "github.com/barnigator/protos/gen/go/sso/v1"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
