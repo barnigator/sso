@@ -3,4 +3,4 @@ postgres_dsn: "postgres://sso:sso@localhost:15432/sso?sslmode=disable"
 token_ttl: 1h
 grpc:
   port: 44044
-  timeout: 10h
+  timeout: 5s

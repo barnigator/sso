@@ -25,7 +25,7 @@ func TestMain(m *testing.M) {
 	testApp, err = app.New(
 		log,
 		testCfg.GRPC.Port,
-		testCfg.StoragePath,
+		testCfg.PostgresDSN,
 		testCfg.TokenTTL,
 	)
 	if err != nil {

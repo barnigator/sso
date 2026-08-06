@@ -3,6 +3,9 @@
 version: '3'
 
 tasks:
+  default:
+    cmds:
+      - task --list
   run:
     desc: Run app
     deps:

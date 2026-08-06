@@ -58,9 +58,9 @@ func (s *Storage) GetUser(ctx context.Context, email string) (domain.User, error
 	var user domain.User
 	err := s.db.QueryRowContext(
 		ctx,
-		"SELECT id, email, pass_hash FROM users WHERE email = $1",
+		"SELECT id, email, pass_hash, role, is_active FROM users WHERE email = $1",
 		email,
-	).Scan(&user.ID, &user.Email, &user.PassHash)
+	).Scan(&user.ID, &user.Email, &user.PassHash, &user.Role, &user.IsActive)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return domain.User{}, fmt.Errorf("%s: %w", fn, deps.ErrUserNotFound)

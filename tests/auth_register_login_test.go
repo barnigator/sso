@@ -58,6 +58,13 @@ func TestRegisterLogin_Login_HappyPath(t *testing.T) {
 	assert.Equal(t, respReq.GetUserId(), int64(claims["uid"].(float64)))
 	assert.Equal(t, email, claims["email"].(string))
 	assert.Equal(t, appID, int(claims["app_id"].(float64)))
+	role, ok := claims["role"].(string)
+	require.True(t, ok, "role claim must be a string")
+	assert.Equal(t, "user", role)
+
+	isActive, ok := claims["is_active"].(bool)
+	require.True(t, ok, "is_active claim must be a bool")
+	assert.True(t, isActive)
 
 	const deltaSeconds = 1
 

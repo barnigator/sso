@@ -16,6 +16,8 @@ func NewToken(user domain.User, app domain.App, duration time.Duration) (string,
 	claims["email"] = user.Email
 	claims["exp"] = time.Now().Add(duration).Unix()
 	claims["app_id"] = app.ID
+	claims["role"] = user.Role
+	claims["is_active"] = user.IsActive
 
 	tokenString, err := token.SignedString([]byte(app.Secret))
 	if err != nil {
