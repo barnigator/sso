@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/barnigator/sso/internal/auth/deps"
+	"github.com/barnigator/sso/internal/auth/domain"
 	"github.com/barnigator/sso/pkg/jwt"
 	"github.com/barnigator/sso/pkg/logger/sl"
 
@@ -52,7 +53,7 @@ func (a *Auth) Login(ctx context.Context, email, password string, appID int) (st
 
 	log.Info("attempting to login user")
 
-	user, err := a.usrProvider.GetUser(ctx, email)
+	user, err := a.usrProvider.GetUserByEmail(ctx, email)
 	if err != nil {
 		if errors.Is(err, deps.ErrUserNotFound) {
 			a.log.Warn("user not found", sl.Err(err))
@@ -88,9 +89,9 @@ func (a *Auth) Login(ctx context.Context, email, password string, appID int) (st
 	return token, nil
 }
 
-// RegisterNewUser registers new user in the system and returns user ID.
+// Register registers new user in the system and returns user ID.
 // If user with given username already exists, returns error.
-func (a *Auth) RegisterNewUser(ctx context.Context, email, password string) (int64, error) {
+func (a *Auth) Register(ctx context.Context, email, password string) (int64, error) {
 	const fn = "auth.RegisterNewUser"
 
 	log := a.log.With(
@@ -121,6 +122,30 @@ func (a *Auth) RegisterNewUser(ctx context.Context, email, password string) (int
 	log.Info("user registered")
 
 	return id, nil
+}
+
+func (a *Auth) GetUser(ctx context.Context, userID int64) (domain.User, error) {
+	const fn = "auth.GetUser"
+
+	log := a.log.With(
+		slog.String("fn", fn),
+	)
+
+	log.Info("getting user by id")
+
+	user, err := a.usrProvider.GetUserByID(ctx, userID)
+	if err != nil {
+		if errors.Is(err, deps.ErrUserNotFound) {
+			log.Warn("user not found", sl.Err(err))
+
+			return domain.User{}, fmt.Errorf("%s: %w", fn, ErrUserNotFound)
+		}
+		return domain.User{}, fmt.Errorf("%s: %w", fn, err)
+	}
+
+	log.Info("got user by id", slog.Int64("id", user.ID))
+
+	return user, nil
 }
 
 // IsAdmin checks if user is admin.

@@ -4,13 +4,14 @@ import (
 	"testing"
 	"time"
 
-	"github.com/barnigator/sso/tests/suite"
-
 	ssov1 "github.com/barnigator/protos/gen/go/sso/v1"
+	"github.com/barnigator/sso/tests/suite"
 	"github.com/brianvoe/gofakeit/v6"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 const (
@@ -196,6 +197,63 @@ func TestLogin_FailCases(t *testing.T) {
 			})
 			require.Error(t, err)
 			require.Contains(t, err.Error(), tt.expectedErr)
+		})
+	}
+}
+
+func TestGetUser(t *testing.T) {
+	ctx, st := suite.New(t)
+	email := gofakeit.Email()
+	password := randomFakePassword()
+
+	regResp, err := st.AuthClient.Register(ctx, &ssov1.RegisterRequest{
+		Email:    email,
+		Password: password,
+	})
+	require.NoError(t, err)
+	assert.NotEmpty(t, regResp.GetUserId())
+
+	getUsResp, err := st.AuthClient.GetUser(ctx, &ssov1.GetUserRequest{UserId: regResp.GetUserId()})
+	require.NoError(t, err)
+	require.Equal(t, getUsResp.UserId, regResp.UserId, "ids should be equal")
+	require.Equal(t, getUsResp.Email, email, "emails should be equal")
+	require.Equal(t, getUsResp.Role, "user", "role should be user")
+	require.Equal(t, getUsResp.IsActive, true, "user should be active")
+}
+
+func TestGetUser_FailCases(t *testing.T) {
+	ctx, st := suite.New(t)
+
+	tests := []struct {
+		name     string
+		userID   int64
+		wantCode codes.Code
+	}{
+		{
+			name:     "zero user ID",
+			userID:   0,
+			wantCode: codes.InvalidArgument,
+		},
+		{
+			name:     "negative user ID",
+			userID:   -1,
+			wantCode: codes.InvalidArgument,
+		},
+		{
+			name:     "unknown user ID",
+			userID:   9_223_372_036_854_775_807,
+			wantCode: codes.NotFound,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			_, err := st.AuthClient.GetUser(ctx, &ssov1.GetUserRequest{
+				UserId: tt.userID,
+			})
+
+			require.Error(t, err)
+			assert.Equal(t, tt.wantCode, status.Code(err))
 		})
 	}
 }

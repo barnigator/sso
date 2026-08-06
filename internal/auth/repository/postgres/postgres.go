@@ -52,8 +52,27 @@ func (s *Storage) SaveUser(ctx context.Context, email string, passHash []byte) (
 	return id, nil
 }
 
-func (s *Storage) GetUser(ctx context.Context, email string) (domain.User, error) {
-	const fn = "repository.postgres.GetUser"
+func (s *Storage) GetUserByID(ctx context.Context, userID int64) (domain.User, error) {
+	const fn = "repository.postgres.GetUserByID"
+	var user domain.User
+	err := s.db.QueryRowContext(
+		ctx,
+		"SELECT id, email, role, is_active FROM users WHERE id = $1",
+		userID,
+	).Scan(&user.ID, &user.Email, &user.Role, &user.IsActive)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return domain.User{}, fmt.Errorf("%s: %w", fn, deps.ErrUserNotFound)
+		}
+
+		return domain.User{}, fmt.Errorf("%s: %w", fn, err)
+	}
+
+	return user, nil
+}
+
+func (s *Storage) GetUserByEmail(ctx context.Context, email string) (domain.User, error) {
+	const fn = "repository.postgres.GetUserByEmail"
 
 	var user domain.User
 	err := s.db.QueryRowContext(

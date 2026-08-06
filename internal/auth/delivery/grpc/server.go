@@ -57,7 +57,7 @@ func (s *serverAPI) Register(
 		return nil, err
 	}
 
-	userID, err := s.auth.RegisterNewUser(ctx, req.GetEmail(), req.GetPassword())
+	userID, err := s.auth.Register(ctx, req.GetEmail(), req.GetPassword())
 	if err != nil {
 		if errors.Is(err, usecase.ErrUserExists) {
 			return nil, status.Error(codes.AlreadyExists, "user already exists")
@@ -89,6 +89,30 @@ func (s *serverAPI) IsAdmin(
 	return &ssov1.IsAdminResponse{IsAdmin: isAdmin}, nil
 }
 
+func (s *serverAPI) GetUser(
+	ctx context.Context,
+	req *ssov1.GetUserRequest,
+) (*ssov1.GetUserResponse, error) {
+	if err := validateGetUser(req); err != nil {
+		return nil, err
+	}
+	user, err := s.auth.GetUser(ctx, req.GetUserId())
+	if err != nil {
+		if errors.Is(err, usecase.ErrUserNotFound) {
+			return nil, status.Error(codes.NotFound, "user not found")
+		}
+
+		return nil, status.Error(codes.Internal, "internal error")
+	}
+
+	return &ssov1.GetUserResponse{
+		UserId:   user.ID,
+		Email:    user.Email,
+		Role:     string(user.Role),
+		IsActive: user.IsActive,
+	}, nil
+}
+
 func validateLogin(req *ssov1.LoginRequest) error {
 	if req.GetEmail() == "" {
 		return status.Error(codes.InvalidArgument, "missing email")
@@ -114,6 +138,14 @@ func validateRegister(req *ssov1.RegisterRequest) error {
 
 func validateIsAdmin(req *ssov1.IsAdminRequest) error {
 	if req.GetUserId() == emptyValue {
+		return status.Error(codes.InvalidArgument, "missing user id")
+	}
+
+	return nil
+}
+
+func validateGetUser(req *ssov1.GetUserRequest) error {
+	if req.GetUserId() <= emptyValue {
 		return status.Error(codes.InvalidArgument, "missing user id")
 	}
 
